@@ -6,12 +6,16 @@ Created on 2015年5月7日
 '''
 from JuneGenerator import Randomint,RandomString,mk_moblie,\
                                         RandomStringWithIntSX,\
-    RandomStringWithInt, mkIp, mkEmail, mkName, mkCity, mkID, mkChinese, mkMac
+    RandomStringWithInt, mkIp, mkEmail, mkName, mkCity, mkID, mkChinese, mkMac,mk_datetime_specified,range_date
 import random
 import copy
+import string
 KIND_SEPARATOR = 'k'
 def isCustomedKind(kindstr):
     assert isinstance(kindstr, (str,unicode)),'kindstr type:%s'%type(kindstr)
+    for key in ('slist','ilist','irange','srange','dttlist','dtlist','idtrange','sdtrange','dttrange','dtrange'):
+        if kindstr.startswith(key):
+            return True
     num = 0
     start = 0
     index = kindstr.find(KIND_SEPARATOR)
@@ -51,7 +55,68 @@ def rule_mkChinese(start,end):
     rd = random.randint(int(start),int(end))
     return mkChinese(rd)  
 def rule_mkcity(start,end):
-    return mkCity()      
+    return mkCity()
+def rule_range(opcode,v):
+    assert isinstance(v, (str,unicode)),'v is not str or unicode!'
+    rule = getRuleFromString(opcode, v)
+    p1,p2 = rule[1].split(',')
+    if opcode.startswith('idt'):#int date
+        return mk_daterange('int', rule)
+    elif opcode.startswith('sdt'):#string date
+        return mk_daterange('string', rule)
+    elif opcode.startswith('dtt'):#datetime
+        return mk_daterange('datetime', rule)
+    elif opcode.startswith('dt'):#date
+        return mk_daterange('date', rule)
+    elif opcode.startswith('i'):
+        return random.randint(long(p1),long(p2))
+    elif opcode.startswith('s'):
+        return str(random.randint(long(p1),long(p2)))
+    else:
+        return None
+def rule_list(opcode,v):
+    assert isinstance(v, (str,unicode)),'v is not str or unicode!'
+    rule = getRuleFromString(opcode, v)
+    plist = rule[1].split(',')
+    if opcode.startswith('dtt'):#datetime
+        return mk_daterange('datetime', rule)
+    elif opcode.startswith('dt'):#date
+        return mk_daterange('date', rule)
+    if opcode.startswith('i'):
+        return int(string.join(random.sample(plist,1)).replace(' ',''))
+    elif opcode.startswith('s'):
+        return string.join(random.sample(plist,1)).replace(' ','')
+    else:
+        return None
+
+def mk_datelist(kind,rule):
+        plist = rule[1].split(',')
+        if kind =='datetime':
+            return mk_datetime_specified(string.join(random.sample(plist,1)).replace(' ','')+'00000')
+        elif kind == 'date':
+            return mk_datetime_specified(string.join(random.sample(plist,1)).replace(' ','')+'00000')
+    
+def mk_daterange(kind,rule):
+        p1,p2 = rule[1].split(',')
+        if kind == 'int':
+            return long(mk_date(p1, p2))
+        if kind =='string':
+            return str(mk_date(p1, p2))
+        elif kind in 'datetime':
+            return mk_datetime(p1,p2)
+        elif kind in 'date':
+            return mk_date(p1,p2)
+def mk_date(left,right):
+    return range_date(left,right)
+def mk_datetime(left,right):
+    datestring = range_date(left,right)
+    return mk_datetime_specified(datestring)
+
+def getRuleFromString(opcode,jstring):
+        left = jstring.index(opcode)+len(opcode)+1
+        right = jstring[left:].index(')')+left
+        return (opcode,jstring[left:right])
+          
 Rules = {
         't':rule_mk_phone,
         'n':rule_mkname,
@@ -91,8 +156,30 @@ def genDataAccordingRules(rules_dict):
 #             print type,start,end
             rule_dict[k] = Rules[type](start,end)
         elif v != None:
-            if isinstance(v, str) and v == 'str':
-                rule_dict[k] = rule_RandomStringWithInt(1, 10)
+            if isinstance(v, (str,unicode)):
+                v = v.lower()
+                if v.startswith('idtrange'):
+                    rule_dict[k] = rule_range('idtrange', v)
+                elif v.startswith('sdtrange'):
+                    rule_dict[k] = rule_range('sdtrange', v)
+                elif v.startswith('dttrange'):
+                    rule_dict[k] = rule_range('dttrange', v)
+                elif v.startswith('dtrange'):
+                    rule_dict[k] = rule_range('dtrange', v)
+                elif v.startswith('dttlist'):
+                    rule_dict[k] = rule_list('dttlist', v)
+                elif v.startswith('dtlist'):
+                    rule_dict[k] = rule_list('dtlist', v)
+                elif v.startswith('irange'):
+                    rule_dict[k] = rule_range('irange',v)
+                elif v.startswith('srange'):
+                    rule_dict[k] = rule_range('srange',v)
+                elif v.startswith('ilist'):
+                    rule_dict[k] = rule_list('ilist',v)
+                elif v.startswith('slist'):
+                    rule_dict[k] = rule_list('slist',v)
+                else:# v == 'str':
+                    rule_dict[k] = rule_RandomStringWithInt(1, 10)
             elif isinstance(v, str) and v == 'int':
                 rule_dict[k] = random.randint(1,1000)
             elif isinstance(v, str) and v == 'bool':

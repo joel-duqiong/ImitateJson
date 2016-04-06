@@ -56,10 +56,11 @@ def IsSameByKey(json1,json2,compareWithKind=False):
     return True
 if __name__ =='__main__':
     import json
-    j = '{"name":"knk0k0","soItemDtoList": [{"ip":"kipk0k0","productId": ["kidk1k19",{"email":"kemailk0k0","a":[{"aa":"june"},2,3]}]}, {"count": "kik2k3"}],"ddd":123,"dfd":"ddf","boolv":true,"nullv":null}'
+    j = '{"createtime":"idtrange(201603,20160306)","price":"irange(98,100)","status":"slist(pending,running)","name":"knk0k0","soItemDtoList": [{"ip":"kipk0k0","productId": ["kidk1k19",{"email":"kemailk0k0","a":[{"aa":"june"},2,"srange(10,15)"]}]}, {"count": "kik2k3"},"sdtrange(201601,20160202)","idtrange(201601,20160202)"],"ddd":123,"dfd":"ddf","boolv":true,"nullv":null}'
     _dict = ImitateJson(json.loads(j))
+    print _dict
     print json.dumps(_dict)
     print IsSameByKey(j, json.dumps(_dict))
-    _dict = ImitateJson(json.loads(j),100)
-    for d in _dict:
-        print IsSameByKey(j, json.dumps(d)),d
+#     _dict = ImitateJson(json.loads(j),10)
+#     for d in _dict:
+#         print IsSameByKey(j, json.dumps(d)),d

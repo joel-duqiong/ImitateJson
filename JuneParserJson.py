@@ -68,7 +68,7 @@ class ParserJson(object):
                 self.paths.append(prefix+('_str' if withkind else ''))
         elif isinstance(obj,bool):
             self.paths.append(prefix+('_bool' if withkind else ''))
-        elif isinstance(obj,int):
+        elif isinstance(obj,(int,long,float)):
             self.paths.append(prefix+('_int' if withkind else ''))
         elif obj is None:
             self.paths.append(prefix+('_null' if withkind else ''))
