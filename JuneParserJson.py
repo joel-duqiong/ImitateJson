@@ -6,11 +6,12 @@ Created on 2016年4月1日
 '''
 import json
 from JuneRules import isCustomedKind
+from JuneGenData import PATH_SEPARATOR
 class ParserJson(object):
     def parser_dict(self,prefix,indict,customedkind,withkind=True):
         for key in indict.keys():
             current_prefix = prefix
-            current_prefix += '_dict_'+key
+            current_prefix += PATH_SEPARATOR+'dict'+PATH_SEPARATOR+key
             if isinstance(indict[key],dict):
                 self.parser_dict(current_prefix,indict[key],customedkind,withkind)
             elif isinstance(indict[key], list):
@@ -23,7 +24,7 @@ class ParserJson(object):
         for l in inlist:
             i += 1
             current_prefix = prefix
-            current_prefix += '_list_'+str(i)
+            current_prefix += PATH_SEPARATOR+'list'+PATH_SEPARATOR+str(i)
             if isinstance(l,dict):
                 self.parser_dict(current_prefix,l,customedkind,withkind)
             elif isinstance(l, list):
@@ -38,8 +39,8 @@ class ParserJson(object):
         self.paths = []
         for key in obj.keys():
             if isinstance(obj[key],dict):
-                self.perser_dict(key,obj[key],customedkind,withkind)
-            if isinstance(obj[key], list):
+                self.parser_dict(key,obj[key],customedkind,withkind)
+            elif isinstance(obj[key], list):
                 self.parser_list(key,obj[key],customedkind,withkind)
             else:
                 self.append(key, obj[key], customedkind, withkind)
@@ -54,26 +55,29 @@ class ParserJson(object):
         rdict = {}
         paths = self.GenNodePaths(obj,customedkind, withkind=withkind)
         for path in paths:
-            separated_index = path.rfind('_')
-            kind = path[separated_index+1:]
-            path = path[:separated_index]
+#             separated_index = path.rfind(PATH_SEPARATOR)
+#             kind = path[separated_index+1:]
+            k_separated_index = path.rfind(PATH_SEPARATOR)
+            p_separated_index = path[:k_separated_index].rfind(PATH_SEPARATOR)#倒数第二个,即最后两：原数_类型
+            kind = path[p_separated_index+1:]#原数_类型
+            path = path[:p_separated_index]
             rdict[path] = kind
         return rdict
     
     def append(self,prefix,obj,customedkind,withkind):
         if isinstance(obj, str) or isinstance(obj, unicode):
             if customedkind and isCustomedKind(obj):
-                self.paths.append(prefix+('_'+obj if withkind else ''))
+                self.paths.append(prefix+(PATH_SEPARATOR+obj+PATH_SEPARATOR+obj if withkind else ''))
             else:
-                self.paths.append(prefix+('_str' if withkind else ''))
+                self.paths.append(prefix+(PATH_SEPARATOR+obj+PATH_SEPARATOR+'str' if withkind else ''))
         elif isinstance(obj,bool):
-            self.paths.append(prefix+('_bool' if withkind else ''))
+            self.paths.append(prefix+(PATH_SEPARATOR+str(obj)+PATH_SEPARATOR+'bool' if withkind else ''))
         elif isinstance(obj,(int,long,float)):
-            self.paths.append(prefix+('_int' if withkind else ''))
+            self.paths.append(prefix+(PATH_SEPARATOR+str(obj)+PATH_SEPARATOR+'int' if withkind else ''))
         elif obj is None:
-            self.paths.append(prefix+('_null' if withkind else ''))
+            self.paths.append(prefix+(PATH_SEPARATOR+str(obj)+PATH_SEPARATOR+'null' if withkind else ''))
         else:
-            raise Exception("append%s"%prefix)
+            raise Exception("append:%s"%prefix)
         
     def dictify(self,jstr):
         assert isinstance(jstr,str),'jstr is not the type of str!'

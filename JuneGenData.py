@@ -4,7 +4,7 @@ Created on 2015年6月19日
 
 @author: joel
 '''
-
+PATH_SEPARATOR = '/'
 def getEvenindex(ls):
     '''
     获取列表偶数下标
@@ -18,8 +18,8 @@ def genDataByRulesPath(tdict):
     rdict = {}
     sortedkey = sorted(tdict)
     for k,v in zip(sortedkey,[tdict[v] for v in sortedkey]):
-        if isinstance(k, str) and '_' in k:
-            tls = k.split('_')
+        if isinstance(k, str) and PATH_SEPARATOR in k:
+            tls = k.split(PATH_SEPARATOR)
             tls.append(v)
             glength = len(tls)/2 - 1
             cur_exestr = 'rdict' 

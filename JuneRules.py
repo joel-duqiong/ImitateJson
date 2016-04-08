@@ -7,10 +7,11 @@ Created on 2015年5月7日
 from JuneGenerator import Randomint,RandomString,mk_moblie,\
                                         RandomStringWithIntSX,\
     RandomStringWithInt, mkIp, mkEmail, mkName, mkCity, mkID, mkChinese, mkMac,mk_datetime_specified,range_date
+from JuneGenData import PATH_SEPARATOR
 import random
-import copy
 import string
 KIND_SEPARATOR = 'k'
+KEY_DATA_SEPARATOR = '@'
 def isCustomedKind(kindstr):
     assert isinstance(kindstr, (str,unicode)),'kindstr type:%s'%type(kindstr)
     for key in ('slist','ilist','irange','srange','dttlist','dtlist','idtrange','sdtrange','dttrange','dtrange'):
@@ -132,6 +133,9 @@ Rules = {
         'city':rule_mkcity
         }
 
+def valish(jstr,e=KEY_DATA_SEPARATOR):
+    return jstr.replace(e, '')
+    
 def genDataAccordingRules(rules_dict):
     '''
     k type k start k end
@@ -149,11 +153,37 @@ def genDataAccordingRules(rules_dict):
         bool
         str
     '''
-    rule_dict = copy.deepcopy(rules_dict)#必须深拷贝
-    for k,v in rule_dict.items(): 
-        if isinstance(v, str) and v.startswith('k'):
-            type,start,end = v[1:].split('k')
-#             print type,start,end
+    rule_dict = {}
+    raw_flag = False
+    for k in rules_dict.keys():
+        if k.strip().startswith(KEY_DATA_SEPARATOR):
+            raw_flag = True
+            break
+    for k,v in rules_dict.items(): 
+        rawdata,v = v.split(PATH_SEPARATOR)
+        if raw_flag:
+            if v == 'bool':
+                rule_dict[valish(k)] = True if rawdata.lower() == 'true' else False
+            elif v in ('int','str','null'):
+                exestr = '%s("%s")'%(v,rawdata)
+                rule_dict[valish(k)] = eval(exestr) if v.strip() != 'null' else None
+            else:
+                rule_dict[valish(k)] = rawdata
+        elif k.endswith('@url'):
+            k = k[:-4]
+            pass
+        elif k.endswith('@db'):
+            k = k[:-3]
+            pass
+        elif k.endswith('@'):
+            k = k[:-1]
+            if v == 'bool':
+                rule_dict[k] = True if rawdata.lower() == 'true' else False
+            else:
+                exestr = '%s("%s")'%(v,rawdata)
+                rule_dict[k] = eval(exestr) if v.strip() != 'null' else None
+        elif isinstance(v, str) and v.startswith(KIND_SEPARATOR):
+            type,start,end = v[1:].split(KIND_SEPARATOR)
             rule_dict[k] = Rules[type](start,end)
         elif v != None:
             if isinstance(v, (str,unicode)):
@@ -178,14 +208,18 @@ def genDataAccordingRules(rules_dict):
                     rule_dict[k] = rule_list('ilist',v)
                 elif v.startswith('slist'):
                     rule_dict[k] = rule_list('slist',v)
-                else:# v == 'str':
-                    rule_dict[k] = rule_RandomStringWithInt(1, 10)
-            elif isinstance(v, str) and v == 'int':
-                rule_dict[k] = random.randint(1,1000)
-            elif isinstance(v, str) and v == 'bool':
-                rule_dict[k] = bool(random.randint(0,1))
-            elif isinstance(v, str) and v == 'null':
-                rule_dict[k] = None
-            else:
-                rule_dict[k] = v
+                #######################################
+                elif v == 'int':
+                    rule_dict[k] = random.randint(1,1000)
+                elif v == 'bool':
+                    rule_dict[k] = bool(random.randint(0,1))
+                elif  v == 'null':
+                    rule_dict[k] = None
+                elif v == 'str':
+                    rule_dict[k] = rule_RandomStringWithInt(1, 5)
+                else:
+                    rule_dict[k] = v
+#                 else:# v == 'str':
+#                     rule_dict[k] = rule_RandomStringWithInt(1, 10)
+            
     return rule_dict
