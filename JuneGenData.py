@@ -5,6 +5,21 @@ Created on 2015年6月19日
 @author: joel
 '''
 PATH_SEPARATOR = '/'
+def covert2int(jstr):
+    try:
+        jstr = int(jstr)
+    except Exception as ex:
+        pass
+    return jstr
+
+def cmplist(x,y):
+    '''
+    custumed comparation of two lists
+    '''
+    x = [covert2int(xx) for xx in x.split('/')]
+    y = [covert2int(yy) for yy in y.split('/')]
+    return cmp(x,y)
+
 def getEvenindex(ls):
     '''
     获取列表偶数下标
@@ -16,7 +31,7 @@ def getEvenindex(ls):
 
 def genDataByRulesPath(tdict):
     rdict = {}
-    sortedkey = sorted(tdict)
+    sortedkey = sorted(tdict,cmp=cmplist)
     for k,v in zip(sortedkey,[tdict[v] for v in sortedkey]):
         if isinstance(k, str) and PATH_SEPARATOR in k:
             tls = k.split(PATH_SEPARATOR)
@@ -26,6 +41,7 @@ def genDataByRulesPath(tdict):
             for keyindex,kindindex in getEvenindex(tls):
                 kind_exestr = 'isinstance(%s,dict)' %(cur_exestr)
                 kind_exestr1 = 'isinstance(%s,list)' %(cur_exestr)
+#                 print kind_exestr,cur_exestr
                 if eval(kind_exestr):#dict
                     has_exestr = cur_exestr+'.has_key("%s")'%(tls[keyindex])
                     if not eval(has_exestr):#dict

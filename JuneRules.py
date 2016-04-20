@@ -152,6 +152,9 @@ def genDataAccordingRules(rules_dict):
         null
         bool
         str
+    ################Warning################
+    all rules below must be impose on last key(dict),not list key
+    namely,imposed on pathKind's last field
     '''
     rule_dict = {}
     raw_flag = False
@@ -175,6 +178,12 @@ def genDataAccordingRules(rules_dict):
         elif k.endswith('@db'):
             k = k[:-3]
             pass
+        elif v=='str' and k.endswith('@pre'):
+            k = k[:-4]
+            rule_dict[k] = rawdata+rule_RandomStringWithInt(1, 5)
+        elif v=='str'  and k.endswith('@suf'):
+            k = k[:-4]
+            rule_dict[k] = rule_RandomStringWithInt(1, 5)+rawdata
         elif k.endswith('@'):
             k = k[:-1]
             if v == 'bool':

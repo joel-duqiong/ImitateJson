@@ -13,7 +13,8 @@ def ImitateJson(dictOjson,num=1):
     在python眼里dict与jsonstr通过json模块可以互转
     '''
     ps = ParserJson()
-    pathKind = ps.GetPathKind(j)#获取路径与类型框架path/kind(dict)
+#     pathKind = ps.GetPathKind(j)#获取路径与类型框架path/kind(dict)
+    pathKind = ps.preConvert(j)#获取路径与类型框架path/kind(dict)
     if num>1:
         rlist = []
         for i in xrange(num):
@@ -23,6 +24,7 @@ def ImitateJson(dictOjson,num=1):
     else:
         pathData = genDataAccordingRules(pathKind)#根据类型框架生成path/value(dict)
         return genDataByRulesPath(pathData)#根据路径框架生成key/value(dict)
+
 
 def ImitateJsonWithPK(pathKind):
     '''
@@ -97,11 +99,10 @@ if __name__ =='__main__':
         }
     }
 }'''
-    j ='''{"int":23,"age@":true,"customer_name":"黄义","phone":"ktk0k0","card_id":"kipk0k0","userid":"irange(10000,100000)"}'''
+#     j ='''{"namereal@pre":"joel","int":23,"age@":null,"customer_name":"黄义","phone":"ktk0k0","card_id":"kipk0k0","userid":"irange(10000,100000)"}'''
+    j = '{"name":"joel","addresses@10-20":[{"lat@suf":"WW","apcode@pre":"A","test":[{"positions@10-20":[{"ad":"dd"},2]}]},1,"joel",34],"money":28}'
     _dict = ImitateJson(json.loads(j))
-    print json.dumps(_dict)
     print IsSameByKey(j, json.dumps(_dict),escape=True)
-    print json.loads(j)
-    _dict = ImitateJson(json.loads(j),10)
+    _dict = ImitateJson(json.loads(j),2)
     for d in _dict:
-        print IsSameByKey(j, json.dumps(d)),d
+        print json.dumps(d)

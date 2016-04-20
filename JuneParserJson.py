@@ -7,6 +7,10 @@ Created on 2016年4月1日
 import json
 from JuneRules import isCustomedKind
 from JuneGenData import PATH_SEPARATOR
+import re
+import random
+import copy
+LISTRANGE = re.compile('@\d*-\d*$')
 class ParserJson(object):
     def parser_dict(self,prefix,indict,customedkind,withkind=True):
         for key in indict.keys():
@@ -78,7 +82,48 @@ class ParserJson(object):
             self.paths.append(prefix+(PATH_SEPARATOR+str(obj)+PATH_SEPARATOR+'null' if withkind else ''))
         else:
             raise Exception("append:%s"%prefix)
-        
+    def postConvert(self,obj,customedkind=True,withkind=True):
+        '''
+        called after GetPathKind to tackle pathrules'conversion
+        to best
+        '''
+        pk = self.GetPathKind(obj, customedkind, withkind)
+        print pk
+        return pk
+    def preConvert(self,obj,customedkind=True,withkind=True):
+        '''
+        called after GetPathKind to tackle pathrules'conversion
+        '''
+        if isinstance(obj,str):
+            obj = self.dictify(obj)
+        assert isinstance(obj, dict),'so far do not support list json!'
+        self.enlargeConvert(obj)
+        pk = self.GetPathKind(obj, customedkind, withkind)
+        return pk
+    def enlargeConvert(self,obj):
+        def _enlarge(obj,k,v):
+            del obj[k]
+            k = k.split('@')[0]
+            obj[k] = []
+            if len(v)>0:
+                for i in xrange(rd):
+                    obj[k].append(v) 
+        if isinstance(obj, list):
+            for index,v in enumerate(obj):
+                obj[index] = self.enlargeConvert(v)
+        elif isinstance(obj, dict):
+            for key,value in obj.items():
+                flag,start,end = isListRangKey(key)
+                if isinstance(value, list):
+                    rd = random.randint(start,end)
+#                     tmp = value[random.randint(0,len(value))]
+                    tmp = value[0]
+                    self.enlargeConvert(tmp)
+                    if flag:
+                        _enlarge(obj,key,tmp)
+                else:
+                    self.enlargeConvert(value)
+             
     def dictify(self,jstr):
         assert isinstance(jstr,str),'jstr is not the type of str!'
         return self.convert(json.loads(jstr))
@@ -93,6 +138,17 @@ class ParserJson(object):
             return dct.encode('utf-8')
         else:
             return dct
+def isListRangKey(jstr):
+    assert isinstance(jstr, (str,unicode)),'jstr is not str or unicode!'
+    m = LISTRANGE.findall(jstr)
+    if len(m)==1:
+        start,end = m[0][1:].split('-')
+        if long(start)<long(end):
+            return True,long(start),long(end)
+        else:
+            return  False,-1,-1
+    else:
+        return  False,0,0
 if __name__ == '__main__':
     j = '{"soItemDtoList": [{"productId": [{"a":[{"aa":"june"},2,3]}]}, {"count": "FBIbCMNm"}],"ddd":123,"dfd":"ddf","boolv":true,"nullv":null}'
     ps = ParserJson()
