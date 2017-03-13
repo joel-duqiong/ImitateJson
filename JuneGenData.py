@@ -4,7 +4,15 @@ Created on 2015年6月19日
 
 @author: joel
 '''
-PATH_SEPARATOR = '/'
+PATH_SEPARATOR = "/"
+PATH_SEPARATOR_R = "`"
+
+def vanishSlash(jstr):
+    return jstr.replace(PATH_SEPARATOR,PATH_SEPARATOR_R)
+
+def unVanishSlash(jstr):
+    return jstr.replace(PATH_SEPARATOR_R,PATH_SEPARATOR)
+
 def covert2int(jstr):
     try:
         jstr = int(jstr)
@@ -16,8 +24,8 @@ def cmplist(x,y):
     '''
     custumed comparation of two lists
     '''
-    x = [covert2int(xx) for xx in x.split('/')]
-    y = [covert2int(yy) for yy in y.split('/')]
+    x = [covert2int(xx) for xx in x.split(PATH_SEPARATOR)]
+    y = [covert2int(yy) for yy in y.split(PATH_SEPARATOR)]
     return cmp(x,y)
 
 def getEvenindex(ls):

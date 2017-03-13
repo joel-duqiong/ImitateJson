@@ -7,10 +7,11 @@ Created on 2015年5月7日
 from JuneGenerator import Randomint,RandomString,mk_moblie,\
                                         RandomStringWithIntSX,\
     RandomStringWithInt, mkIp, mkEmail, mkName, mkCity, mkID, mkChinese, mkMac,mk_datetime_specified,range_date
-from JuneGenData import PATH_SEPARATOR
+from JuneGenData import PATH_SEPARATOR,unVanishSlash
+from JuneGenByDatabase import generator
 import random
 import string
-KIND_SEPARATOR = 'k'
+KIND_SEPARATOR = 'k'#|
 KEY_DATA_SEPARATOR = '@'
 def isCustomedKind(kindstr):
     assert isinstance(kindstr, (str,unicode)),'kindstr type:%s'%type(kindstr)
@@ -135,7 +136,8 @@ Rules = {
 
 def valish(jstr,e=KEY_DATA_SEPARATOR):
     return jstr.replace(e, '')
-    
+def genByDatabase(obj):
+    generator(obj)
 def genDataAccordingRules(rules_dict):
     '''
     k type k start k end
@@ -158,12 +160,15 @@ def genDataAccordingRules(rules_dict):
     '''
     rule_dict = {}
     raw_flag = False
-    for k in rules_dict.keys():
+    for k,v in rules_dict.items():
+#         if isinstance(v, (str,unicode)):
+#             rules_dict[k] = unVanishSlash(v)
         if k.strip().startswith(KEY_DATA_SEPARATOR):
             raw_flag = True
             break
     for k,v in rules_dict.items(): 
         rawdata,v = v.split(PATH_SEPARATOR)
+        rawdata = unVanishSlash(rawdata)
         if raw_flag:
             if v == 'bool':
                 rule_dict[valish(k)] = True if rawdata.lower() == 'true' else False
@@ -176,8 +181,8 @@ def genDataAccordingRules(rules_dict):
             k = k[:-4]
             pass
         elif k.endswith('@db'):
-            k = k[:-3]
-            pass
+#             k = k[:-3]
+            rule_dict[k] = rawdata
         elif v=='str' and k.endswith('@pre'):
             k = k[:-4]
             rule_dict[k] = rawdata+rule_RandomStringWithInt(1, 5)
@@ -230,5 +235,5 @@ def genDataAccordingRules(rules_dict):
                     rule_dict[k] = v
 #                 else:# v == 'str':
 #                     rule_dict[k] = rule_RandomStringWithInt(1, 10)
-            
+    genByDatabase(rule_dict)
     return rule_dict

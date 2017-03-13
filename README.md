@@ -15,6 +15,7 @@
 >>  3. 数据可以根据"规则"制定符合业务的数据;
 >>  4. 每次使用的数据不一样,在用户注册，进件等场景不再考虑数据不可用情况。
 >>  5. 提供web端(后期做)。
+>>  6. 调用历史数据(后期做)。
 >>
 >
 
@@ -31,17 +32,21 @@
 >>  规则如下:
 >>
 ```
-基本类型:t-电话号码,n-名字(有中文与英文),id-uuid,mac-MAC地址,ip-IP,email-邮件,is-数字与字符混和的字符串,i-int类型,s-只有字符的字符串,chinses-汉,city-城市名,还有后期补充
+基本类型:t-电话号码,n-名字(有中文与英文),id-身份证,mac-MAC地址,ip-IP,email-邮件,is-数字与字符混和的字符串,i-int类型,s-只有字符的字符串,chinses-汉,city-城市名,还有后期补充
 语法k类型k上限k下限
 ```
 ```
 高级类型:slist－string的列表,ilist－int的列表,irange－int的范围,srange－string的范围,idtrange－int date的范围,sdtrange－string date的范围,dttrange－datetime的范围,dtrange－date的范围
 ```
+```
+特别类型:@-只复制原始数据,@db-在数据库的某个字段的值内变化(后期做),@url-在url请求返回某个的值内变化(后期做),@prefix-前缀(后期做),@suffix-后缀(后期做),还有后期补充
+```
 >>
 > 
 >  ***用法***
->>  curl -d '{"name":"joel","lat":"123","lng":"145","money":28}' http://服务器ip:port/getdata?count=5
-```会批量模仿输出5个测试数据,注意没有使用任何规则,输出只是原始数据自我模仿
+>>  curl -d '{"name":"joel","lat":"123","lng":"145","money":28}' http://10.1.5.9:4444/gendata/getdata?count=5
+```
+会批量模仿输出5个测试数据,注意没有使用任何规则,输出只是原始数据自我模仿
 {"lat": "6eFEJ", "money": 939, "lng": "Avem", "name": "Uv"}
 {"lat": "FKVg", "money": 761, "lng": "7", "name": "mucL"}
 {"lat": "eRj", "money": 876, "lng": "8pAOH", "name": "x4INR"}
@@ -49,8 +54,9 @@
 {"lat": "iuwKq", "money": 858, "lng": "sV", "name": "YicEj"}
 ```
 >>
->>  curl -d '{"name":"knk0k0","lat":123,"lng":145,"islogin":true}' http://服务器ip:port/getdata?count=5
-```会批量模仿输出5个定制数据
+>>  curl -d '{"name":"knk0k0","lat":123,"lng":145,"islogin":true}' http://10.1.5.9:4444/gendata/getdata?count=5
+```
+会批量模仿输出5个定制数据
 {"islogin": false, "lat": 833, "lng": 139, "name": "Carly Uriah"}
 {"islogin": true, "lat": 164, "lng": 579, "name": "\u8b24\u853c"}
 {"islogin": true, "lat": 19, "lng": 461, "name": "\u83aa\u7c82"}
@@ -59,7 +65,8 @@
 ```
 >>
 >>  curl -d '{"ip":"kipk0k0","lat":"irange(100,105)","lng":"irange(20,100)","date":"idtrange(20160401,20160405)","createdate":"sdtrange(20150401,2016)"}' http://服务器ip:port/getdata?count=5
-```会批量模仿输出5个定制数据
+```
+会批量模仿输出5个定制数据
 {"date": 20160405165457051, "ip": "141.92.73.223", "createdate": "20150818103847073", "lat": 102, "lng": 88}
 {"date": 20160403033345098, "ip": "96.190.112.242", "createdate": "20151124180508098", "lat": 101, "lng": 40}
 {"date": 20160404092937011, "ip": "55.102.67.168", "createdate": "20150605200225070", "lat": 101, "lng": 62}
@@ -67,8 +74,9 @@
 {"date": 20160402164601022, "ip": "119.45.93.68", "createdate": "20160803170613032", "lat": 100, "lng": 47}
 ```
 >>
->>  curl -d '{"age@":27,"email":"kemailk0k0","city":"kcityk0k0","password":"kisk12k32"}' http://服务器ip:port/getdata?count=5
-```会批量模仿输出5个定制数据,注意age是值是固定的
+>>  curl -d '{"age@":27,"email":"kemailk0k0","city":"kcityk0k0","password":"kisk12k32"}' http://10.1.5.9:4444/gendata/getdata?count=5
+```
+会批量模仿输出5个定制数据,注意age是值是固定的
 {"city": "\u6e56\u5317\u7701\uff08\u9102\uff09", "age": 27, "password": "WOt5c1pDvRdaQEPiCSg", "email": "D1PwWAg3q68myXMcukCVhLB@qq.com"}
 {"city": "\u9655\u897f\u7701\uff08\u9655\uff09", "age": 27, "password": "tAU5JyjLCvr6uxHnX1VYmOPMeB2s", "email": "NTc2CQ5ndEsyuw0F@hotmail.com"}
 {"city": "\u8fbd\u5b81\u7701\uff08\u8fbd\uff09", "age": 27, "password": "4yX6tMSONdo2r5JYQ3jUiV1gwDWfKn", "email": "U378ajKAwXkf52SCtQueHyG@gmail.com"}
@@ -76,20 +84,23 @@
 {"city": "\u4e91\u5357\u7701\uff08\u4e91\uff09", "age": 27, "password": "kvaMqi8HxQ6Anwu", "email": "sb1TUl6C7RiLnhSEFjQVX2fto3@126.com"}
 ```
 >>
->>  curl -d '{"@age":27,"email":"kemailk0k0","city":"kcityk0k0","password":"kisk12k32"}' http://服务器ip:port/getdata?count=5
-```会批量模仿输出5个定制数据,但是自己的复制
+>>  curl -d '{"@age":27,"email":"kemailk0k0","city":"kcityk0k0","password":"kisk12k32"}' http://10.1.5.9:4444/gendata/getdata?count=5
+```
+会批量模仿输出5个定制数据,但是自己的复制
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 ```
+
 >>
->>  curl -d '{"name":"joel","addresses@1-2":[{"lat@suf":"WW","apcode@pre":"A","test":[{"positions@1-2":[{"ad":"dd"},2]}]},1,"joel",34],"money":28}' http://服务器ip:port/getdata?count=5
-```会批量模仿输出5个定制数据,但是注意@1-2
-{"money": 226, "addresses": [{"lat": "b1WW", "test": [{"positions": [{"ad": "xCw"}, {"ad": "BwIV"}]}], "apcode": "Aew7FP"}], "name": "LJ"}
-{"money": 259, "addresses": [{"lat": "gbUWW", "test": [{"positions": [{"ad": "wkH"}, {"ad": "Alt"}]}], "apcode": "A3Cq7D"}], "name": "UeiEO"}
-{"money": 988, "addresses": [{"lat": "hWW", "test": [{"positions": [{"ad": "2qebJ"}, {"ad": "Kkr1"}]}], "apcode": "A1o"}], "name": "G2A"}
-{"money": 605, "addresses": [{"lat": "0WW", "test": [{"positions": [{"ad": "IBlYC"}, {"ad": "GSt"}]}], "apcode": "AaiJr"}], "name": "8TPWC"}
-{"money": 429, "addresses": [{"lat": "jWW", "test": [{"positions": [{"ad": "slXh"}, {"ad": "K0dkB"}]}], "apcode": "ADMm"}], "name": "S"}
+>>  curl -d '{"newapp":{"ID@db":"oracle://用户名:密码@ip:port/servicename?charset=utf8|表名.字段名为"}}' http://10.1.5.9:4444/gendata/getdata?count=5
+```
+会批量模仿输出5个定制数据
+{"newapp": {"ID": "330184198507044113"}}
+{"newapp": {"ID": "330184198901244113"}}
+{"newapp": {"ID": "210203198001202516"}}
+{"newapp": {"ID": "330103197811061855"}}
+{"newapp": {"ID": "310102196501275327"}}
 ```

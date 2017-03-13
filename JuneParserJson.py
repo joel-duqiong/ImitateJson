@@ -6,10 +6,9 @@ Created on 2016年4月1日
 '''
 import json
 from JuneRules import isCustomedKind
-from JuneGenData import PATH_SEPARATOR
+from JuneGenData import PATH_SEPARATOR,vanishSlash
 import re
 import random
-import copy
 LISTRANGE = re.compile('@\d*-\d*$')
 class ParserJson(object):
     def parser_dict(self,prefix,indict,customedkind,withkind=True):
@@ -69,7 +68,10 @@ class ParserJson(object):
         return rdict
     
     def append(self,prefix,obj,customedkind,withkind):
+#         print prefix,obj
         if isinstance(obj, str) or isinstance(obj, unicode):
+            if PATH_SEPARATOR in obj:
+                obj = vanishSlash(obj)
             if customedkind and isCustomedKind(obj):
                 self.paths.append(prefix+(PATH_SEPARATOR+obj+PATH_SEPARATOR+obj if withkind else ''))
             else:
