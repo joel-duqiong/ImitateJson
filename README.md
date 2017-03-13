@@ -39,7 +39,7 @@
 高级类型:slist－string的列表,ilist－int的列表,irange－int的范围,srange－string的范围,idtrange－int date的范围,sdtrange－string date的范围,dttrange－datetime的范围,dtrange－date的范围
 ```
 ```
-特别类型:@-只复制原始数据,@db-在数据库的某个字段的值内变化(后期做),@url-在url请求返回某个的值内变化(后期做),@prefix-前缀(后期做),@suffix-后缀(后期做),还有后期补充
+特别类型:@-只复制原始数据,@num1-num2-只列表数据，@db-在数据库的某个字段的值内变化,@url-在url请求返回某个的值内变化(后期做),@pre-前缀,@suffix-后缀(后期做),还有后期补充
 ```
 >>
 > 
@@ -92,6 +92,17 @@
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
 {"city": "kcityk0k0", "age": 27, "password": "kisk12k32", "email": "kemailk0k0"}
+```
+
+>>
+>>  curl -d '{"name":"joel","addresses@1-2":[{"lat@suf":"WW","apcode@pre":"A","test":[{"positions@1-2":[{"ad":"dd"},2]}]},1,"joel",34],"money":28}' http://服务器ip:port/getdata?count=5
+```
+会批量模仿输出5个定制数据,但是注意@1-2
+ {"money": 226, "addresses": [{"lat": "b1WW", "test": [{"positions": [{"ad": "xCw"}, {"ad": "BwIV"}]}], "apcode": "Aew7FP"}], "name": "LJ"}
+ {"money": 259, "addresses": [{"lat": "gbUWW", "test": [{"positions": [{"ad": "wkH"}, {"ad": "Alt"}]}], "apcode": "A3Cq7D"}], "name": "UeiEO"}
+ {"money": 988, "addresses": [{"lat": "hWW", "test": [{"positions": [{"ad": "2qebJ"}, {"ad": "Kkr1"}]}], "apcode": "A1o"}], "name": "G2A"}
+ {"money": 605, "addresses": [{"lat": "0WW", "test": [{"positions": [{"ad": "IBlYC"}, {"ad": "GSt"}]}], "apcode": "AaiJr"}], "name": "8TPWC"}
+ {"money": 429, "addresses": [{"lat": "jWW", "test": [{"positions": [{"ad": "slXh"}, {"ad": "K0dkB"}]}], "apcode": "ADMm"}], "name": "S"}
 ```
 
 >>
