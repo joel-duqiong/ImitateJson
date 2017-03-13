@@ -54,7 +54,7 @@
 {"lat": "iuwKq", "money": 858, "lng": "sV", "name": "YicEj"}
 ```
 >>
->>  curl -d '{"name":"<em>knk0k0<em>","lat":123,"lng":145,"islogin":true}' http://10.1.5.9:4444/gendata/getdata?count=5
+>>  curl -d '{"name":"knk0k0","lat":123,"lng":145,"islogin":true}' http://10.1.5.9:4444/gendata/getdata?count=5
 ```
 会批量模仿输出5个定制数据
 {"islogin": false, "lat": 833, "lng": 139, "name": "Carly Uriah"}
